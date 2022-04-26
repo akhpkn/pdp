@@ -1,0 +1,23 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/pdp
+    username: postgres
+    password: password
+  liquibase:
+    enabled: true
+    change-log: classpath:liquibase/changelog-master.yml
+    url: jdbc:postgresql://localhost:5432/pdp
+    user: postgres
+    password: password
+
+server:
+  error:
+    include-message: always
+
+logging:
+  level:
+    org.springframework.r2dbc: debug
+
+jwt:
+  secret: "Jwt secret key"
+  expiration-in-ms: 604800000
