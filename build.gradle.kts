@@ -54,15 +54,19 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-tasks.jar {
-    manifest.attributes["Main-Class"] = "com.github.akhpkn.pdp.PdpApplicationKt"
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    from(sourceSets.main.get().output)
-
-    dependsOn(configurations.runtimeClasspath)
-    from({
-        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-    })
+tasks.getByName<Jar>("jar") {
+    enabled = false
 }
+
+//tasks.jar {
+//    manifest.attributes["Main-Class"] = "com.github.akhpkn.pdp.PdpApplicationKt"
+//
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//
+//    from(sourceSets.main.get().output)
+//
+//    dependsOn(configurations.compileClasspath)
+//    from({
+//        configurations.compileClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+//    })
+//}
