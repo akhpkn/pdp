@@ -57,6 +57,8 @@ tasks.withType<Test> {
 tasks.jar {
     manifest.attributes["Main-Class"] = "com.github.akhpkn.pdp.PdpApplicationKt"
 
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     from(sourceSets.main.get().output)
 
     dependsOn(configurations.runtimeClasspath)
