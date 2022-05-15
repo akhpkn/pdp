@@ -1,10 +1,8 @@
 package com.github.akhpkn.pdp.domain.plan.service
 
 import com.github.akhpkn.pdp.domain.plan.dao.PlanAccessDao
-import com.github.akhpkn.pdp.security.AccessType
 import com.github.akhpkn.pdp.domain.plan.model.PlanAccess
-import com.github.akhpkn.pdp.domain.plan.model.PlanAccessInfo
-import kotlinx.coroutines.flow.Flow
+import com.github.akhpkn.pdp.security.AccessType
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -19,6 +17,12 @@ class PlanAccessService(private val dao: PlanAccessDao) {
             dao.insert(PlanAccess(planId, userId, accessType))
         } else if (current.type != accessType) {
             dao.update(planId, userId, accessType)
+        }
+    }
+
+    suspend fun grant(planId: UUID, userIds: List<UUID>, accessType: AccessType) {
+        userIds.forEach {
+            grant(planId, it, accessType)
         }
     }
 

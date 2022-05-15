@@ -4,10 +4,10 @@ import com.github.akhpkn.pdp.domain.comment.dao.CommentDao
 import com.github.akhpkn.pdp.domain.comment.model.Comment
 import com.github.akhpkn.pdp.domain.comment.model.CommentData
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.await
+import org.springframework.r2dbc.core.awaitSingleOrNull
+import org.springframework.r2dbc.core.flow
 import org.springframework.stereotype.Repository
 import java.time.Instant
 import java.util.UUID
@@ -20,7 +20,6 @@ class CommentDaoImpl(private val databaseClient: DatabaseClient) : CommentDao {
             .sql("select * from comment where id=:id")
             .bind("id", id)
             .map(MappingFunctions.toComment)
-            .first()
             .awaitSingleOrNull()
     }
 
@@ -29,8 +28,7 @@ class CommentDaoImpl(private val databaseClient: DatabaseClient) : CommentDao {
             .sql("select * from comment where task_id=:taskId")
             .bind("taskId", taskId)
             .map(MappingFunctions.toComment)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override fun listByTaskV2(taskId: UUID): Flow<CommentData> = run {
@@ -47,8 +45,7 @@ class CommentDaoImpl(private val databaseClient: DatabaseClient) : CommentDao {
             )
             .bind("taskId", taskId)
             .map(MappingFunctions.toCommentData)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override suspend fun insert(comment: Comment) {

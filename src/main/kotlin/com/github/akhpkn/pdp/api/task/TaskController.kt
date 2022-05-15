@@ -1,17 +1,15 @@
 package com.github.akhpkn.pdp.api.task
 
 import com.github.akhpkn.pdp.api.task.protocol.StatusRequest
-import com.github.akhpkn.pdp.api.task.protocol.TaskCreationRequest
 import com.github.akhpkn.pdp.api.task.protocol.TaskUpdateRequest
 import com.github.akhpkn.pdp.auth.withAuthorizedUserId
+import com.github.akhpkn.pdp.domain.feedback.FeedbackService
 import com.github.akhpkn.pdp.domain.task.dto.TaskDto
-import com.github.akhpkn.pdp.security.AccessType
-import com.github.akhpkn.pdp.domain.task.service.TaskService
-import com.github.akhpkn.pdp.domain.task.model.Task
 import com.github.akhpkn.pdp.domain.task.model.TaskInputData
+import com.github.akhpkn.pdp.domain.task.service.TaskService
 import com.github.akhpkn.pdp.security.AccessService
+import com.github.akhpkn.pdp.security.AccessType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -28,6 +26,7 @@ import java.util.UUID
 @RequestMapping("/api/v1/task")
 class TaskController(
     private val service: TaskService,
+    private val feedbackService: FeedbackService,
     private val accessService: AccessService
 ) {
 
@@ -36,7 +35,8 @@ class TaskController(
         withAuthorizedUserId {
             val access = accessService.checkTaskAccess(userId = it, taskId = id, AccessType.Read)
             val task = service.getById(id)
-            TaskDto.from(task, access)
+            val maybeFeedbackRequest = feedbackService.findActiveFeedbackRequest(task.id, it)
+            TaskDto.from(task, access, maybeFeedbackRequest)
         }
     }
 
@@ -44,8 +44,10 @@ class TaskController(
     suspend fun getAllBy(@RequestParam("planId") planId: UUID): Flow<TaskDto> = run {
         withAuthorizedUserId { userId ->
             val access = accessService.checkPlanAccess(userId, planId, AccessType.Read)
-            service.getByPlanId(planId)
-                .map { TaskDto.from(it, access) }
+            service.getByPlanId(planId).map {
+                val maybeFeedbackRequest = feedbackService.findActiveFeedbackRequest(it.id, userId)
+                TaskDto.from(it, access, maybeFeedbackRequest)
+            }
         }
     }
 

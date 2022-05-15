@@ -2,6 +2,9 @@ package com.github.akhpkn.pdp.db
 
 import com.github.akhpkn.pdp.domain.comment.model.Comment
 import com.github.akhpkn.pdp.domain.comment.model.CommentData
+import com.github.akhpkn.pdp.domain.feedback.FeedbackRequest
+import com.github.akhpkn.pdp.domain.feedback.TaskFeedback
+import com.github.akhpkn.pdp.domain.notification.model.NotificationSettings
 import com.github.akhpkn.pdp.domain.plan.model.Plan
 import com.github.akhpkn.pdp.domain.plan.model.PlanAccess
 import com.github.akhpkn.pdp.domain.plan.model.PlanAccessInfo
@@ -9,7 +12,6 @@ import com.github.akhpkn.pdp.domain.plan.model.PlanData
 import com.github.akhpkn.pdp.domain.task.model.Task
 import com.github.akhpkn.pdp.domain.task.model.TaskAuditData
 import com.github.akhpkn.pdp.domain.task.model.TaskStatus
-import com.github.akhpkn.pdp.domain.team.Team
 import com.github.akhpkn.pdp.domain.user.model.User
 import com.github.akhpkn.pdp.domain.user.model.UserCredentials
 import com.github.akhpkn.pdp.security.AccessType
@@ -29,8 +31,7 @@ object MappingFunctions {
             id = get("id") as UUID,
             email = get("email") as String,
             name = get("name") as String,
-            surname = get("surname") as String,
-            teamId = get("team_id") as UUID?
+            surname = get("surname") as String
         )
     }
 
@@ -114,15 +115,6 @@ object MappingFunctions {
         )
     }
 
-    val toTeam = mapTo {
-        Team(
-            id = get("id") as UUID,
-            title = get("title") as String,
-            description = get("description") as String,
-            leadId = get("lead_id") as UUID
-        )
-    }
-
     val toComment = mapTo {
         Comment(
             id = get("id") as UUID,
@@ -143,6 +135,34 @@ object MappingFunctions {
             userEmail = get("user_email") as String,
             userSurname = get("user_surname") as String,
             createDt = get("create_dt", Instant::class.java)!!
+        )
+    }
+
+    val toTaskFeedback = mapTo {
+        TaskFeedback(
+            id = get("id") as UUID,
+            requestId = get("request_id") as UUID,
+            text = get("text") as String,
+            createDt = get("create_dt", Instant::class.java)!!
+        )
+    }
+
+    val toFeedbackRequest = mapTo {
+        FeedbackRequest(
+            id = get("id") as UUID,
+            requesterId = get("requester_id") as UUID,
+            assigneeId = get("assignee_id") as UUID,
+            taskId = get("task_id") as UUID,
+            createdDt = get("create_dt", Instant::class.java)!!
+        )
+    }
+
+    val toNotificationSettings = mapTo {
+        NotificationSettings(
+            userId = get("user_id") as UUID,
+            enabled = get("enabled") as Boolean,
+            daysBeforeDeadline = get("days_before_deadline") as Int,
+            daysBeforeReport = get("days_before_report") as Int
         )
     }
 }

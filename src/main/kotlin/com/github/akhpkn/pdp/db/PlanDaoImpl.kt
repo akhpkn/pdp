@@ -4,10 +4,10 @@ import com.github.akhpkn.pdp.domain.plan.dao.PlanDao
 import com.github.akhpkn.pdp.domain.plan.model.Plan
 import com.github.akhpkn.pdp.domain.plan.model.PlanData
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.await
+import org.springframework.r2dbc.core.awaitSingleOrNull
+import org.springframework.r2dbc.core.flow
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -19,7 +19,6 @@ class PlanDaoImpl(private val databaseClient: DatabaseClient): PlanDao {
             .sql("select * from plan where id=:id")
             .bind("id", id)
             .map(MappingFunctions.toPlan)
-            .first()
             .awaitSingleOrNull()
     }
 
@@ -29,7 +28,6 @@ class PlanDaoImpl(private val databaseClient: DatabaseClient): PlanDao {
             .bind("planId", id)
             .bind("userId", userId)
             .map(MappingFunctions.toPlan)
-            .first()
             .awaitSingleOrNull()
     }
 
@@ -38,8 +36,7 @@ class PlanDaoImpl(private val databaseClient: DatabaseClient): PlanDao {
             .sql("select * from plan where user_id=:userId")
             .bind("userId", userId)
             .map(MappingFunctions.toPlan)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override fun listShared(userId: UUID): Flow<PlanData> = run {
@@ -56,8 +53,15 @@ class PlanDaoImpl(private val databaseClient: DatabaseClient): PlanDao {
             )
             .bind("userId", userId)
             .map(MappingFunctions.toPlanData)
-            .all()
-            .asFlow()
+            .flow()
+    }
+
+    override suspend fun update(id: UUID, title: String) {
+        databaseClient
+            .sql("update plan set title=:title where id=:id")
+            .bind("id", id)
+            .bind("title", title)
+            .await()
     }
 
     override suspend fun insert(plan: Plan) {
@@ -68,6 +72,13 @@ class PlanDaoImpl(private val databaseClient: DatabaseClient): PlanDao {
             .bind("userId", plan.userId)
             .bind("createDt", plan.createDt)
             .bind("dueTo", plan.dueTo)
+            .await()
+    }
+
+    override suspend fun delete(id: UUID) {
+        databaseClient
+            .sql("delete from plan where id=:id")
+            .bind("id", id)
             .await()
     }
 }

@@ -15,5 +15,9 @@ interface PlanDao {
 
     fun listShared(userId: UUID): Flow<PlanData>
 
+    suspend fun update(id: UUID, title: String)
+
     suspend fun insert(plan: Plan)
+
+    suspend fun delete(id: UUID)
 }

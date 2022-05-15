@@ -1,6 +1,7 @@
 package com.github.akhpkn.pdp.domain.comment.service
 
 import com.github.akhpkn.pdp.domain.comment.dao.CommentDao
+import com.github.akhpkn.pdp.domain.comment.exception.CommentNotFoundException
 import com.github.akhpkn.pdp.domain.comment.model.Comment
 import com.github.akhpkn.pdp.domain.comment.model.CommentData
 import com.github.akhpkn.pdp.exception.NoAccessException
@@ -11,7 +12,7 @@ import java.util.UUID
 @Service
 class CommentService(private val dao: CommentDao) {
 
-    suspend fun getById(id: UUID): Comment = dao.find(id) ?: throw RuntimeException("Comment not found")
+    suspend fun getById(id: UUID): Comment = dao.find(id) ?: throw CommentNotFoundException()
 
     fun getByTaskId(taskId: UUID): Flow<Comment> {
         return dao.listByTask(taskId)

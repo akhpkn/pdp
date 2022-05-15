@@ -14,10 +14,6 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
-
-//    maven {
-//        url = uri("https://oss.jfrog.org/artifactory/oss-snapshot-local/")
-//    }
 }
 
 dependencies {
@@ -25,6 +21,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -36,9 +33,6 @@ dependencies {
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
 
-//    implementation("io.springfox:springfox-swagger2:3.0.0")
-//    implementation("io.springfox:springfox-swagger-ui:3.0.0")
-//    implementation("io.springfox:springfox-spring-webflux:3.0.0")
     implementation("io.springfox:springfox-boot-starter:3.0.0")
 
     runtimeOnly("io.r2dbc:r2dbc-postgresql")

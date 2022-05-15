@@ -1,6 +1,7 @@
 package com.github.akhpkn.pdp.domain.user.service
 
 import com.github.akhpkn.pdp.domain.user.dao.UserDao
+import com.github.akhpkn.pdp.domain.user.exception.UserNotFoundException
 import com.github.akhpkn.pdp.domain.user.model.User
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -8,9 +9,9 @@ import java.util.UUID
 @Service
 class UserService(private val dao: UserDao) {
 
-    suspend fun findById(id: UUID) = dao.find(id) ?: throw RuntimeException("User not found")
+    suspend fun findById(id: UUID) = dao.find(id) ?: throw UserNotFoundException()
 
-    suspend fun findByEmail(email: String) = dao.find(email) ?: throw RuntimeException("User not found")
+    suspend fun findByEmail(email: String) = dao.find(email) ?: throw UserNotFoundException()
 
     fun listByEmailContaining(emailSubstring: String) = dao.listByEmailLike(emailSubstring)
 
@@ -31,7 +32,6 @@ class UserService(private val dao: UserDao) {
             id = UUID.randomUUID(),
             email = email,
             name = name,
-            surname = surname,
-            teamId = null
+            surname = surname
         )
 }

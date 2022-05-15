@@ -1,3 +1,3 @@
 package com.github.akhpkn.pdp.exception
 
-class NoAccessException : RuntimeException("No access")
+class NoAccessException : ForbiddenException("У вас недостаточно прав!")

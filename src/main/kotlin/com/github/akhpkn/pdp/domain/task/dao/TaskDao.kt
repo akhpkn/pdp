@@ -7,6 +7,8 @@ import java.util.UUID
 
 interface TaskDao {
 
+    suspend fun getTask(id: UUID) = find(id) ?: throw RuntimeException("Task not found")
+
     suspend fun find(id: UUID): Task?
 
     suspend fun findByIdAndUser(id: UUID, userId: UUID): Task?

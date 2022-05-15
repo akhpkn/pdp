@@ -1,6 +1,7 @@
 package com.github.akhpkn.pdp.domain.task.service
 
 import com.github.akhpkn.pdp.domain.task.dao.TaskDao
+import com.github.akhpkn.pdp.domain.task.exception.TaskNotFoundException
 import com.github.akhpkn.pdp.domain.task.model.Task
 import com.github.akhpkn.pdp.domain.task.model.TaskInputData
 import com.github.akhpkn.pdp.domain.task.model.TaskStatus
@@ -16,7 +17,7 @@ class TaskService(
     private val auditService: TaskAuditService
 ) {
 
-    suspend fun getById(id: UUID): Task = dao.find(id) ?: throw RuntimeException("Task not found")
+    suspend fun getById(id: UUID): Task = dao.find(id) ?: throw TaskNotFoundException()
 
     fun getByPlanId(planId: UUID): Flow<Task> = dao.listByPlan(planId)
 

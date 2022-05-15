@@ -1,21 +1,26 @@
 package com.github.akhpkn.pdp.api.plan
 
 import com.github.akhpkn.pdp.api.plan.protocol.PlanCreationRequest
+import com.github.akhpkn.pdp.api.plan.protocol.PlanDataDto
 import com.github.akhpkn.pdp.api.plan.protocol.PlanDto
+import com.github.akhpkn.pdp.api.plan.protocol.PlanExt
+import com.github.akhpkn.pdp.api.plan.protocol.PlanTitle
 import com.github.akhpkn.pdp.auth.withAuthorizedUserId
-import com.github.akhpkn.pdp.security.AccessType
 import com.github.akhpkn.pdp.domain.plan.model.Plan
 import com.github.akhpkn.pdp.domain.plan.model.PlanData
 import com.github.akhpkn.pdp.domain.plan.service.PlanService
 import com.github.akhpkn.pdp.domain.task.model.TaskStatus
 import com.github.akhpkn.pdp.domain.task.service.TaskService
 import com.github.akhpkn.pdp.security.AccessService
+import com.github.akhpkn.pdp.security.AccessType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -31,10 +36,11 @@ class PlanController(
 ) {
 
     @GetMapping("/{id}")
-    suspend fun getById(@PathVariable id: UUID): Plan = run {
-        withAuthorizedUserId {
-            accessService.checkPlanAccess(userId = it, planId = id, AccessType.Read)
-            service.getById(id)
+    suspend fun getById(@PathVariable id: UUID): PlanExt = run {
+        withAuthorizedUserId { userId ->
+            val access = accessService.checkPlanAccess(userId = userId, planId = id, AccessType.Read)
+            val plan = service.getById(id)
+            PlanExt.from(plan, access)
         }
     }
 
@@ -47,9 +53,10 @@ class PlanController(
     }
 
     @GetMapping("/shared")
-    suspend fun getSharedPlans(): Flow<PlanData> = run {
-        withAuthorizedUserId {
-            service.getSharedPlans(it)
+    suspend fun getSharedPlans(): Flow<PlanDataDto> = run {
+        withAuthorizedUserId { userId ->
+            service.getSharedPlans(userId)
+                .toPlanDataDto()
         }
     }
 
@@ -57,29 +64,75 @@ class PlanController(
     suspend fun getOwnedPlans(): Flow<PlanDto> = run {
         withAuthorizedUserId { userId ->
             service.getByAuthor(userId)
-                .map { plan ->
-                    val tasks = taskService.getByPlanId(plan.id).toList()
-                    val total = tasks.count()
-                    val inProgress = tasks.count { it.status == TaskStatus.InProgress }
-                    val completed = tasks.count { it.status == TaskStatus.Completed }
-                    PlanDto(
-                        id = plan.id,
-                        title = plan.title,
-                        userId = plan.userId,
-                        createDt = plan.createDt,
-                        dueTo = plan.dueTo,
-                        tasksCompleted = completed,
-                        tasksInProgress = inProgress,
-                        tasksTotal = total
-                    )
-                }
+                .toPlanDto()
         }
     }
+
+    private suspend fun Flow<Plan>.toPlanDto(): Flow<PlanDto> {
+        return map {
+            val stats = getStats(it.id)
+            PlanDto(
+                id = it.id,
+                title = it.title,
+                userId = it.userId,
+                createDt = it.createDt,
+                dueTo = it.dueTo,
+                tasksCompleted = stats.completed,
+                tasksInProgress = stats.inProgress,
+                tasksTotal = stats.total
+            )
+        }
+    }
+
+    private suspend fun Flow<PlanData>.toPlanDataDto(): Flow<PlanDataDto> {
+        return map {
+            val stats = getStats(it.id)
+            PlanDataDto(
+                id = it.id,
+                title = it.title,
+                userId = it.userId,
+                userEmail = it.userEmail,
+                userName = it.userName,
+                userSurname = it.userSurname,
+                createDt = it.createDt,
+                dueTo = it.dueTo,
+                tasksCompleted = stats.completed,
+                tasksInProgress = stats.inProgress,
+                tasksTotal = stats.total
+            )
+        }
+    }
+
+    private suspend fun getStats(planId: UUID): ProgressStats {
+        val tasks = taskService.getByPlanId(planId).toList()
+        val total = tasks.count()
+        val inProgress = tasks.count { t -> t.status == TaskStatus.InProgress }
+        val completed = tasks.count { t -> t.status == TaskStatus.Completed }
+        return ProgressStats(total, inProgress, completed)
+    }
+
+    private data class ProgressStats(val total: Int, val inProgress: Int, val completed: Int)
 
     @PostMapping
     suspend fun createPlan(@RequestBody request: PlanCreationRequest) {
         withAuthorizedUserId {
             service.create(request.title, it, request.dueTo)
+        }
+    }
+
+    @PutMapping("/{id}")
+    suspend fun updateTitle(@PathVariable id: UUID, @RequestBody title: PlanTitle) {
+        withAuthorizedUserId {
+            accessService.checkPlanAccess(userId = it, planId = id, accessType = AccessType.Owner)
+            service.updateTitle(id, title.title)
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    suspend fun deletePlan(@PathVariable id: UUID) {
+        withAuthorizedUserId {
+            accessService.checkPlanAccess(userId = it, planId = id, accessType = AccessType.Owner)
+            service.delete(id)
         }
     }
 }

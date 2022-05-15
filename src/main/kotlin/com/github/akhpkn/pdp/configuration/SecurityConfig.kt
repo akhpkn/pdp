@@ -2,7 +2,6 @@ package com.github.akhpkn.pdp.configuration
 
 import com.github.akhpkn.pdp.security.AuthenticationManager
 import com.github.akhpkn.pdp.security.SecurityContextRepository
-import kotlinx.coroutines.reactor.mono
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -41,11 +40,13 @@ class SecurityConfig(
             .pathMatchers(HttpMethod.OPTIONS).permitAll()
             .pathMatchers(
                 "/api/v1/auth/**",
+                "/api/v1/user/exists",
                 "/swagger-resources/**",
                 "/v2/api-docs",
                 "/webjars/**",
                 "/v3/api-docs/**",
-                "/swagger-ui/**"
+                "/swagger-ui/**",
+                "/api/v1/notification/**"
             )
             .permitAll()
             .anyExchange().authenticated()

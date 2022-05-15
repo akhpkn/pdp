@@ -5,10 +5,10 @@ import com.github.akhpkn.pdp.domain.plan.model.PlanAccess
 import com.github.akhpkn.pdp.domain.plan.model.PlanAccessInfo
 import com.github.akhpkn.pdp.security.AccessType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.await
+import org.springframework.r2dbc.core.awaitSingleOrNull
+import org.springframework.r2dbc.core.flow
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -20,8 +20,7 @@ class PlanAccessDaoImpl(private val databaseClient: DatabaseClient) : PlanAccess
             .sql("select * from plan_access where user_id=:userId")
             .bind("userId", userId)
             .map(MappingFunctions.toPlanAccess)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override fun listByPlan(planId: UUID): Flow<PlanAccess> = run {
@@ -29,8 +28,7 @@ class PlanAccessDaoImpl(private val databaseClient: DatabaseClient) : PlanAccess
             .sql("select * from plan_access where plan_id=:planId")
             .bind("planId", planId)
             .map(MappingFunctions.toPlanAccess)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override fun listByPlanJoinUser(planId: UUID): Flow<PlanAccessInfo> = run {
@@ -46,8 +44,7 @@ class PlanAccessDaoImpl(private val databaseClient: DatabaseClient) : PlanAccess
             )
             .bind("planId", planId)
             .map(MappingFunctions.toPlanAccessInfo)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override suspend fun find(planId: UUID, userId: UUID): PlanAccess? = run {
@@ -56,7 +53,6 @@ class PlanAccessDaoImpl(private val databaseClient: DatabaseClient) : PlanAccess
             .bind("planId", planId)
             .bind("userId", userId)
             .map(MappingFunctions.toPlanAccess)
-            .first()
             .awaitSingleOrNull()
     }
 
@@ -73,7 +69,6 @@ class PlanAccessDaoImpl(private val databaseClient: DatabaseClient) : PlanAccess
             .bind("taskId", taskId)
             .bind("userId", userId)
             .map(MappingFunctions.toPlanAccess)
-            .first()
             .awaitSingleOrNull()
     }
 

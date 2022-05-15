@@ -9,6 +9,17 @@ spring:
     url: jdbc:postgresql://localhost:5432/pdp
     user: postgres
     password: password
+  mail:
+    host: smtp.gmail.com
+    username: ${EMAIL_USER}
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    port: 587
 
 server:
   error:

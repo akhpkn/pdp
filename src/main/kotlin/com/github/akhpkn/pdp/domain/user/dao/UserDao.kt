@@ -6,6 +6,8 @@ import java.util.UUID
 
 interface UserDao {
 
+    suspend fun getUser(id: UUID) = find(id) ?: throw RuntimeException("User $id not found")
+
     suspend fun find(id: UUID): User?
 
     suspend fun find(email: String): User?

@@ -3,9 +3,9 @@ package com.github.akhpkn.pdp.db
 import com.github.akhpkn.pdp.domain.user.dao.UserCredentialsDao
 import com.github.akhpkn.pdp.domain.user.model.UserCredentials
 import com.github.akhpkn.pdp.domain.user.model.UserCredentialsModel
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.await
+import org.springframework.r2dbc.core.awaitSingleOrNull
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -24,8 +24,7 @@ class UserCredentialsDaoImpl(private val databaseClient: DatabaseClient) : UserC
             )
             .bind("userId", userId)
             .map(MappingFunctions.toUserCredentials)
-            .first()
-            .awaitFirstOrNull()
+            .awaitSingleOrNull()
     }
 
     override suspend fun find(email: String): UserCredentials? = run {
@@ -40,8 +39,7 @@ class UserCredentialsDaoImpl(private val databaseClient: DatabaseClient) : UserC
             )
             .bind("email", email)
             .map(MappingFunctions.toUserCredentials)
-            .first()
-            .awaitFirstOrNull()
+            .awaitSingleOrNull()
     }
 
     override suspend fun insert(credentials: UserCredentialsModel) {

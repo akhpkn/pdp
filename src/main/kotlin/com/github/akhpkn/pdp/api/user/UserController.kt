@@ -1,12 +1,12 @@
 package com.github.akhpkn.pdp.api.user
 
+import com.github.akhpkn.pdp.api.user.protocol.BooleanWrapper
 import com.github.akhpkn.pdp.api.user.protocol.UserUpdateRequest
 import com.github.akhpkn.pdp.auth.withAuthorizedUserId
 import com.github.akhpkn.pdp.domain.user.model.User
 import com.github.akhpkn.pdp.domain.user.service.UserService
 import com.github.akhpkn.pdp.security.AccessService
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNot
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -31,6 +31,10 @@ class UserController(
                 .filterNot { it.id == userId }
         }
     }
+
+    @GetMapping("/exists")
+    suspend fun existsByEmail(@RequestParam("email") email: String) =
+        BooleanWrapper(service.existsByEmail(email))
 
     @PutMapping("/{id}")
     suspend fun updateUser(@PathVariable id: UUID, @RequestBody request: UserUpdateRequest) {

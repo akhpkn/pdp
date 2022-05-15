@@ -2,6 +2,7 @@ package com.github.akhpkn.pdp.api.plan
 
 import com.github.akhpkn.pdp.api.plan.protocol.PlanAccessCreationRequest
 import com.github.akhpkn.pdp.api.plan.protocol.PlanAccessDeletionRequest
+import com.github.akhpkn.pdp.api.plan.protocol.PlanAccessMultipleCreationRequest
 import com.github.akhpkn.pdp.auth.withAuthorizedUserId
 import com.github.akhpkn.pdp.domain.plan.model.PlanAccessInfo
 import com.github.akhpkn.pdp.domain.plan.service.PlanAccessService
@@ -41,6 +42,14 @@ class PlanAccessController(
                 accessService.checkPlanAccess(userId = it, planId = request.planId, AccessType.Owner)
                 service.grant(planId = request.planId, userId = request.userId, request.type)
             }
+        }
+    }
+
+    @PostMapping("/multiple")
+    suspend fun grantAccessMultiple(@RequestBody request: PlanAccessMultipleCreationRequest) {
+        withAuthorizedUserId {
+            accessService.checkPlanAccess(userId = it, planId = request.planId, AccessType.Owner)
+            service.grant(planId = request.planId, userIds = request.userIds, request.type)
         }
     }
 

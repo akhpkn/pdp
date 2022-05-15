@@ -4,10 +4,10 @@ import com.github.akhpkn.pdp.domain.task.dao.TaskDao
 import com.github.akhpkn.pdp.domain.task.model.Task
 import com.github.akhpkn.pdp.domain.task.model.TaskStatus
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.await
+import org.springframework.r2dbc.core.awaitSingleOrNull
+import org.springframework.r2dbc.core.flow
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -19,7 +19,6 @@ class TaskDaoImpl(private val databaseClient: DatabaseClient) : TaskDao {
             .sql("select * from task where id=:id")
             .bind("id", id)
             .map(MappingFunctions.toTask)
-            .first()
             .awaitSingleOrNull()
     }
 
@@ -36,7 +35,6 @@ class TaskDaoImpl(private val databaseClient: DatabaseClient) : TaskDao {
             .bind("taskId", id)
             .bind("userId", userId)
             .map(MappingFunctions.toTask)
-            .first()
             .awaitSingleOrNull()
     }
 
@@ -45,8 +43,7 @@ class TaskDaoImpl(private val databaseClient: DatabaseClient) : TaskDao {
             .sql("select * from task where plan_id=:planId order by create_dt")
             .bind("planId", planId)
             .map(MappingFunctions.toTask)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override suspend fun insert(task: Task) {

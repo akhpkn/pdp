@@ -2,13 +2,12 @@ package com.github.akhpkn.pdp.domain.plan.service
 
 import com.github.akhpkn.pdp.domain.plan.dao.PlanAccessDao
 import com.github.akhpkn.pdp.domain.plan.dao.PlanDao
-import com.github.akhpkn.pdp.security.AccessType
+import com.github.akhpkn.pdp.domain.plan.exception.PlanNotFoundException
 import com.github.akhpkn.pdp.domain.plan.model.Plan
 import com.github.akhpkn.pdp.domain.plan.model.PlanAccess
 import com.github.akhpkn.pdp.domain.plan.model.PlanData
+import com.github.akhpkn.pdp.security.AccessType
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -28,12 +27,19 @@ class PlanService(
         accessDao.insert(access)
     }
 
+    suspend fun updateTitle(id: UUID, title: String) {
+        val plan = getById(id)
+        dao.update(plan.id, title)
+    }
+
+    suspend fun delete(id: UUID) {
+        val plan = getById(id)
+        dao.delete(plan.id)
+    }
+
     fun getByAuthor(userId: UUID): Flow<Plan> = dao.listByAuthor(userId)
 
-    suspend fun getById(id: UUID): Plan = dao.find(id) ?: throw RuntimeException("Plan not found")
+    suspend fun getById(id: UUID): Plan = dao.find(id) ?: throw PlanNotFoundException()
 
     fun getSharedPlans(userId: UUID): Flow<PlanData> = dao.listShared(userId)
-//        accessDao.listByUser(userId)
-//            .filter { it.type != AccessType.Owner }
-//            .map { dao.find(it.planId)!! }
 }

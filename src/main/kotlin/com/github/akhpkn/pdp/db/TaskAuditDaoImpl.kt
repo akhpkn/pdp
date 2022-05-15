@@ -4,9 +4,9 @@ import com.github.akhpkn.pdp.domain.task.dao.TaskAuditDao
 import com.github.akhpkn.pdp.domain.task.model.TaskAudit
 import com.github.akhpkn.pdp.domain.task.model.TaskAuditData
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.await
+import org.springframework.r2dbc.core.flow
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -27,8 +27,7 @@ class TaskAuditDaoImpl(private val databaseClient: DatabaseClient) : TaskAuditDa
             )
             .bind("planId", planId)
             .map(MappingFunctions.toTaskAuditData)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override suspend fun insert(taskAudit: TaskAudit) {

@@ -3,10 +3,10 @@ package com.github.akhpkn.pdp.db
 import com.github.akhpkn.pdp.domain.user.dao.UserDao
 import com.github.akhpkn.pdp.domain.user.model.User
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.await
+import org.springframework.r2dbc.core.awaitSingleOrNull
+import org.springframework.r2dbc.core.flow
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -18,7 +18,6 @@ class UserDaoImpl(private val databaseClient: DatabaseClient) : UserDao {
             .sql("select * from \"user\" where id=:id")
             .bind("id", id)
             .map(MappingFunctions.toUser)
-            .first()
             .awaitSingleOrNull()
     }
 
@@ -27,7 +26,6 @@ class UserDaoImpl(private val databaseClient: DatabaseClient) : UserDao {
             .sql("select * from \"user\" where email=:email")
             .bind("email", email)
             .map(MappingFunctions.toUser)
-            .first()
             .awaitSingleOrNull()
     }
 
@@ -36,8 +34,7 @@ class UserDaoImpl(private val databaseClient: DatabaseClient) : UserDao {
             .sql("select * from \"user\" where email like :email")
             .bind("email", "%$email%")
             .map(MappingFunctions.toUser)
-            .all()
-            .asFlow()
+            .flow()
     }
 
     override suspend fun update(id: UUID, name: String, surname: String) {
