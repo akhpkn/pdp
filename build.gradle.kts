@@ -6,7 +6,6 @@ plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
     kotlin("kapt") version "1.6.10"
-//    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.github.akhpkn"
@@ -57,16 +56,3 @@ tasks.withType<Test> {
 tasks.getByName<Jar>("jar") {
     enabled = false
 }
-
-//tasks.jar {
-//    manifest.attributes["Main-Class"] = "com.github.akhpkn.pdp.PdpApplicationKt"
-//
-//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-//
-//    from(sourceSets.main.get().output)
-//
-//    dependsOn(configurations.compileClasspath)
-//    from({
-//        configurations.compileClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
-//    })
-//}
