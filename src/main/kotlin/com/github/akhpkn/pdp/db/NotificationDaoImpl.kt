@@ -10,6 +10,7 @@ import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.flow
 import org.springframework.stereotype.Repository
 import java.time.Instant
+import java.util.UUID
 
 @Repository
 class NotificationDaoImpl(private val databaseClient: DatabaseClient) : NotificationDao {
@@ -24,8 +25,8 @@ class NotificationDaoImpl(private val databaseClient: DatabaseClient) : Notifica
 
     private val toTaskNotificationDto = { row: Row, rm: RowMetadata ->
         TaskNotificationDto(
-            task = MappingFunctions.toTask(row, rm),
-            user = MappingFunctions.toUser(row, rm),
+            task = MappingFunctions.toTask(row, rm).copy(id = row.get("task_id") as UUID),
+            user = MappingFunctions.toUser(row, rm).copy(id = row.get("user_id") as UUID),
             notificationSettings = MappingFunctions.toNotificationSettings(row, rm)
         )
     }
@@ -50,7 +51,7 @@ class NotificationDaoImpl(private val databaseClient: DatabaseClient) : Notifica
         databaseClient
             .sql(
                 """
-                    select u.*, t.*, n.* 
+                    select u.*, t.*, n.* , t.id as task_id
                     from notification_settings n
                     join "user" u on u.id = n.user_id
                     join plan p on u.id = p.user_id
