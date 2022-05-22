@@ -33,7 +33,7 @@ class PlanDaoImpl(private val databaseClient: DatabaseClient): PlanDao {
 
     override fun listByAuthor(userId: UUID): Flow<Plan> = run {
         databaseClient
-            .sql("select * from plan where user_id=:userId")
+            .sql("select * from plan where user_id=:userId order by create_dt")
             .bind("userId", userId)
             .map(MappingFunctions.toPlan)
             .flow()
@@ -49,6 +49,7 @@ class PlanDaoImpl(private val databaseClient: DatabaseClient): PlanDao {
                     join "user" u on p.user_id=u.id
                     join plan_access pa on p.id = pa.plan_id
                     where pa.user_id=:userId and pa.type!='Owner'
+                    order by create_dt
                 """.trimIndent()
             )
             .bind("userId", userId)
