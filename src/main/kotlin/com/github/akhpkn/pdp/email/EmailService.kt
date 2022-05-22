@@ -18,8 +18,8 @@ class EmailService(private val mailSender: JavaMailSender) {
         }
 
         runInterruptible(Dispatchers.IO) {
-//            doSend(message)
-            mockEmailSending(message)
+            doSend(message)
+//            mockEmailSending(message)
         }
     }
 
