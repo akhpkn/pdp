@@ -1,6 +1,6 @@
 package com.github.akhpkn.pdp.domain.task.dto
 
-import com.github.akhpkn.pdp.domain.feedback.FeedbackRequest
+import com.github.akhpkn.pdp.domain.feedback.model.FeedbackRequest
 import com.github.akhpkn.pdp.domain.task.model.Task
 import com.github.akhpkn.pdp.domain.task.model.TaskStatus
 import com.github.akhpkn.pdp.security.AccessType

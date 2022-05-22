@@ -62,4 +62,27 @@ class NotificationDaoImpl(private val databaseClient: DatabaseClient) : Notifica
             .map(toTaskNotificationDto)
             .flow()
     }
+
+    override fun listTasksForReminders(pointInTime: Instant): Flow<Pair<TaskNotificationDto, Instant>> = run {
+        databaseClient
+            .sql(
+                """
+                    select u.*, t.*, n.*, ta.date_time
+                    from pdp.public.notification_settings n
+                    join "user" u on u.id = n.user_id
+                    join plan p on u.id = p.user_id
+                    join task t on p.id = t.plan_id
+                    join task_audit ta on t.id = ta.task_id
+                    where t.status='InProgress' 
+                    and ta.date_time=(select max(date_time) from task_audit where task_id=t.id) 
+                    and t.due_to>=:pointInTime 
+                    and n.enabled=true
+                """.trimIndent()
+            )
+            .bind("pointInTime", pointInTime)
+            .map { row, rowMeta ->
+                toTaskNotificationDto(row, rowMeta) to row.get("date_time", Instant::class.java)!!
+            }
+            .flow()
+    }
 }

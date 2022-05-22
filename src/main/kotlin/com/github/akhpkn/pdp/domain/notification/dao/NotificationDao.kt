@@ -10,4 +10,6 @@ interface NotificationDao {
     fun listActualPlansWithEnabledNotifications(pointInTime: Instant): Flow<PlanNotificationDto>
 
     fun listActualTasksWithEnabledNotifications(pointInTime: Instant): Flow<TaskNotificationDto>
+
+    fun listTasksForReminders(pointInTime: Instant): Flow<Pair<TaskNotificationDto, Instant>>
 }

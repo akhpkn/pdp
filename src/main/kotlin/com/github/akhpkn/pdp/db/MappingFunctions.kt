@@ -2,8 +2,8 @@ package com.github.akhpkn.pdp.db
 
 import com.github.akhpkn.pdp.domain.comment.model.Comment
 import com.github.akhpkn.pdp.domain.comment.model.CommentData
-import com.github.akhpkn.pdp.domain.feedback.FeedbackRequest
-import com.github.akhpkn.pdp.domain.feedback.TaskFeedback
+import com.github.akhpkn.pdp.domain.feedback.model.FeedbackRequest
+import com.github.akhpkn.pdp.domain.feedback.model.TaskFeedback
 import com.github.akhpkn.pdp.domain.notification.model.NotificationSettings
 import com.github.akhpkn.pdp.domain.plan.model.Plan
 import com.github.akhpkn.pdp.domain.plan.model.PlanAccess

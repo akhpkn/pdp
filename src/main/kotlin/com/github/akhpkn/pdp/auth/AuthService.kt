@@ -62,17 +62,15 @@ class AuthService(
         return doAuthenticate(request.email, request.password)
     }
 
-    suspend fun authenticateUser(request: SignInRequest) = doAuthenticate(request.email, request.password)
+    suspend fun authenticateUser(request: SignInRequest): AuthenticationResponse =
+        doAuthenticate(request.email, request.password)
 
-    private suspend fun doAuthenticate(email: String, password: String): AuthenticationResponse {
-        val user = userCredentialsDao.find(email) ?: throw UserNotFoundException()
-
-        return if (passwordEncoder.matches(password, user.password)) {
-            val token = jwtUtil.generateToken(user.userId)
-            AuthenticationResponse(token)
-        } else {
-            throw WrongPasswordException()
-        }
+    private suspend fun doAuthenticate(email: String, password: String) = run {
+        userCredentialsDao.find(email)
+            ?.takeIf { passwordEncoder.matches(password, it.password) }
+            ?.let { jwtUtil.generateToken(it.userId) }
+            ?.let { AuthenticationResponse(it) }
+            ?: throw WrongEmailOrPasswordException()
     }
 
     companion object : KLogging()

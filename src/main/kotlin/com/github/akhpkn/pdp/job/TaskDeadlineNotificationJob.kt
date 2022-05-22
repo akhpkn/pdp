@@ -1,4 +1,4 @@
-package com.github.akhpkn.pdp.domain.notification
+package com.github.akhpkn.pdp.job
 
 import com.github.akhpkn.pdp.domain.notification.service.NotificationService
 import kotlinx.coroutines.runBlocking
@@ -10,7 +10,7 @@ import java.time.Instant
 @Component
 class TaskDeadlineNotificationJob(private val notificationService: NotificationService) {
 
-    @Scheduled(cron = "0 12 0 * * ?")
+    @Scheduled(cron = "0 0 12 * * ?")
     fun run() {
         logger.info { "$LOG_TAG: Start" }
         val now = Instant.now()

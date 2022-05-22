@@ -1,4 +1,4 @@
-package com.github.akhpkn.pdp.domain.notification
+package com.github.akhpkn.pdp.job
 
 import com.github.akhpkn.pdp.domain.notification.service.NotificationService
 import kotlinx.coroutines.runBlocking
@@ -8,18 +8,19 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
-class PlanDeadlineNotificationJob(private val notificationService: NotificationService) {
+class TaskReportNotificationJob(private val notificationService: NotificationService) {
 
-    @Scheduled(cron = "0 0 12 * * ?")
+    @Scheduled(cron = "0 0 10 * * ?")
     fun run() {
         logger.info { "$LOG_TAG: Start" }
         val now = Instant.now()
         runBlocking {
-            notificationService.executePlanDeadlineNotifications(now)
+            notificationService.executeTaskReportNotifications(now)
         }
+        logger.info { "$LOG_TAG: End" }
     }
 
     companion object : KLogging() {
-        private const val LOG_TAG = "PlanDeadlineNotificationJob"
+        private const val LOG_TAG = "[TaskReportNotificationJob]"
     }
 }

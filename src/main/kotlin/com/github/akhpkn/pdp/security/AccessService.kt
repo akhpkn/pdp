@@ -27,11 +27,6 @@ class AccessService(
             ?: throw NoAccessException()
     }
 
-    suspend fun checkCommentReadAccess(commentId: UUID, userId: UUID) {
-        val comment = commentDao.find(commentId) ?: throw RuntimeException("Not found")
-        checkTaskAccess(userId = userId, taskId = comment.taskId, accessType = AccessType.Read)
-    }
-
     suspend fun checkCommentReadAccess(comment: Comment, userId: UUID) {
         checkTaskAccess(userId = userId, taskId = comment.taskId, accessType = AccessType.Read)
     }

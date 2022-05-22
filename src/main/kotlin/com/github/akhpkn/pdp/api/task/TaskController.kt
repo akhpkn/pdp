@@ -3,7 +3,7 @@ package com.github.akhpkn.pdp.api.task
 import com.github.akhpkn.pdp.api.task.protocol.StatusRequest
 import com.github.akhpkn.pdp.api.task.protocol.TaskUpdateRequest
 import com.github.akhpkn.pdp.auth.withAuthorizedUserId
-import com.github.akhpkn.pdp.domain.feedback.FeedbackService
+import com.github.akhpkn.pdp.domain.feedback.service.FeedbackService
 import com.github.akhpkn.pdp.domain.task.dto.TaskDto
 import com.github.akhpkn.pdp.domain.task.model.TaskInputData
 import com.github.akhpkn.pdp.domain.task.service.TaskService

@@ -1,4 +1,4 @@
-package com.github.akhpkn.pdp.domain.feedback
+package com.github.akhpkn.pdp.domain.feedback.exception
 
 import com.github.akhpkn.pdp.exception.NotFoundException
 

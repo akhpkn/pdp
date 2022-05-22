@@ -30,6 +30,6 @@ class NotificationController(private val dao: NotificationDao, private val servi
 
     @PostMapping("/report")
     suspend fun reportReminders() {
-        service.executeTaskReportReminderNotifications(Instant.now())
+        service.executeTaskReportNotifications(Instant.now())
     }
 }

@@ -1,5 +1,8 @@
-package com.github.akhpkn.pdp.domain.feedback
+package com.github.akhpkn.pdp.domain.feedback.dao
 
+import com.github.akhpkn.pdp.domain.feedback.model.FeedbackRequest
+import com.github.akhpkn.pdp.domain.feedback.model.TaskFeedback
+import com.github.akhpkn.pdp.domain.feedback.model.TaskFeedbackView
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 

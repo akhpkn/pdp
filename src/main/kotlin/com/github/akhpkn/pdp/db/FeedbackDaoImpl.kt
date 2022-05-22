@@ -1,9 +1,9 @@
 package com.github.akhpkn.pdp.db
 
-import com.github.akhpkn.pdp.domain.feedback.FeedbackDao
-import com.github.akhpkn.pdp.domain.feedback.FeedbackRequest
-import com.github.akhpkn.pdp.domain.feedback.TaskFeedback
-import com.github.akhpkn.pdp.domain.feedback.TaskFeedbackView
+import com.github.akhpkn.pdp.domain.feedback.dao.FeedbackDao
+import com.github.akhpkn.pdp.domain.feedback.model.FeedbackRequest
+import com.github.akhpkn.pdp.domain.feedback.model.TaskFeedback
+import com.github.akhpkn.pdp.domain.feedback.model.TaskFeedbackView
 import kotlinx.coroutines.flow.Flow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.await

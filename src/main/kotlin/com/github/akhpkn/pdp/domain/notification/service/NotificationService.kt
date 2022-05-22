@@ -4,7 +4,6 @@ import com.github.akhpkn.pdp.domain.notification.dao.NotificationDao
 import com.github.akhpkn.pdp.domain.plan.model.Plan
 import com.github.akhpkn.pdp.domain.task.model.Task
 import com.github.akhpkn.pdp.domain.user.model.User
-import com.github.akhpkn.pdp.email.NotificationAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -20,14 +19,14 @@ import java.time.ZoneOffset
 
 @Service
 class NotificationService(
-    private val notificationAdapter: NotificationAdapter,
+    private val notificationSender: NotificationSender,
     private val notificationDao: NotificationDao
 ) {
 
     suspend fun executePlanDeadlineNotifications(pointInTime: Instant) = coroutineScope {
         loadUsersAndPlansWithDeadline(pointInTime).collect {
             launch(Dispatchers.IO) {
-                notificationAdapter.notifyPlanDeadline(it.first, it.second)
+                notificationSender.notifyPlanDeadline(it.first, it.second)
             }
         }
     }
@@ -35,15 +34,15 @@ class NotificationService(
     suspend fun executeTaskDeadlineNotifications(pointInTime: Instant) = coroutineScope {
         loadUsersAndTasksWithDeadline(pointInTime).collect {
             launch(Dispatchers.IO) {
-                notificationAdapter.notifyTaskDeadline(it.first, it.second)
+                notificationSender.notifyTaskDeadline(it.first, it.second)
             }
         }
     }
 
-    suspend fun executeTaskReportReminderNotifications(pointInTime: Instant) = coroutineScope {
-        loadUsersAndTasksForReminder(pointInTime).collect {
+    suspend fun executeTaskReportNotifications(pointInTime: Instant) = coroutineScope {
+        loadUsersAndTasksForReminder2(pointInTime).collect {
             launch(Dispatchers.IO) {
-                notificationAdapter.notifyTaskReport(it.first, it.second)
+                notificationSender.notifyTaskReport(it.first, it.second)
             }
         }
     }
@@ -84,6 +83,21 @@ class NotificationService(
             .map { it.user to it.task }
     }
 
+    private fun loadUsersAndTasksForReminder2(pointInTime: Instant): Flow<Pair<User, Task>> = run {
+        notificationDao.listTasksForReminders(pointInTime)
+            .filter { (dto, lastInProgressDt) ->
+                logger.info { "filtering $dto $lastInProgressDt" }
+                with(dto) {
+                    isDatePresentInProgression(
+                        start = lastInProgressDt.toLocalDate(),
+                        stepInDays = notificationSettings.daysBeforeReport,
+                        date = pointInTime.toLocalDate()
+                    )
+                }
+            }
+            .map { it.first.user to it.first.task }
+    }
+
     private fun isDatePresentInProgression(start: LocalDate, stepInDays: Int, date: LocalDate): Boolean =
         isPresentInProgression(
             start = start.toEpochDay(),
@@ -91,7 +105,8 @@ class NotificationService(
             element = date.toEpochDay()
         )
 
-    private fun isPresentInProgression(start: Long, step: Long, element: Long): Boolean = (element - start) % step == 0L
+    private fun isPresentInProgression(start: Long, step: Long, element: Long): Boolean =
+        element != start && (element - start) % step == 0L
 
     private fun Instant.toLocalDate(): LocalDate = LocalDate.ofInstant(this, ZoneOffset.systemDefault())
 

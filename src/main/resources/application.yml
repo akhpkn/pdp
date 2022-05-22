@@ -29,6 +29,9 @@ logging:
   level:
     org.springframework.r2dbc: debug
 
+client-app:
+  base-link: http://localhost:3000
+
 jwt:
   secret: "Jwt secret key"
   expiration-in-ms: 604800000

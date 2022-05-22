@@ -1,8 +1,13 @@
-package com.github.akhpkn.pdp.domain.feedback
+package com.github.akhpkn.pdp.domain.feedback.service
 
+import com.github.akhpkn.pdp.domain.feedback.dao.FeedbackDao
+import com.github.akhpkn.pdp.domain.feedback.exception.FeedbackRequestNotFoundException
+import com.github.akhpkn.pdp.domain.feedback.model.FeedbackRequest
+import com.github.akhpkn.pdp.domain.feedback.model.TaskFeedback
+import com.github.akhpkn.pdp.domain.feedback.model.TaskFeedbackView
+import com.github.akhpkn.pdp.domain.notification.service.NotificationSender
 import com.github.akhpkn.pdp.domain.task.dao.TaskDao
 import com.github.akhpkn.pdp.domain.user.dao.UserDao
-import com.github.akhpkn.pdp.email.NotificationAdapter
 import com.github.akhpkn.pdp.exception.BadRequestException
 import com.github.akhpkn.pdp.exception.NoAccessException
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +24,7 @@ class FeedbackService(
     private val feedbackDao: FeedbackDao,
     private val userDao: UserDao,
     private val taskDao: TaskDao,
-    private val notificationAdapter: NotificationAdapter
+    private val notificationSender: NotificationSender
 ) {
 
     companion object : KLogging()
@@ -46,12 +51,12 @@ class FeedbackService(
         val task = taskDao.getTask(taskId)
 
         findActiveFeedbackRequest(taskId, assigneeId)?.let {
-            throw BadRequestException("Вы уже запросили фидбек у ${assignee.name} ${assignee.surname}")
+            throw BadRequestException("Вы уже запросили обратную связь у ${assignee.name} ${assignee.surname}")
         }
 
         val request = makeFeedbackRequest(userId, assigneeId, taskId)
         feedbackDao.insert(request)
-        notificationAdapter.notifyFeedbackRequested(
+        notificationSender.notifyFeedbackRequested(
             requester = requester,
             assignee = assignee,
             task = task
@@ -83,7 +88,7 @@ class FeedbackService(
             createDt = Instant.now()
         )
         feedbackDao.insert(feedback)
-        notificationAdapter.notifyFeedbackReceived(
+        notificationSender.notifyFeedbackReceived(
             requester = requester,
             assignee = assignee,
             task = task
