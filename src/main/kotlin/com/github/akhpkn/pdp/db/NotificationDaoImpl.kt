@@ -68,7 +68,7 @@ class NotificationDaoImpl(private val databaseClient: DatabaseClient) : Notifica
         databaseClient
             .sql(
                 """
-                    select u.*, t.*, n.*, ta.date_time
+                    select u.*, t.*, n.*, ta.date_time, t.id as task_id
                     from notification_settings n
                     join "user" u on u.id = n.user_id
                     join plan p on u.id = p.user_id
